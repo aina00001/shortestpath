@@ -140,7 +140,7 @@ class BlockDS:
         for i, block in enumerate(self.blocks):
             if not block or block[-1][1] >= b:
                 block.append((a, b))
-                block.sort(key=lambda x: x[1])  # keep block ordered
+                block.sort(key=lambda x: x[1])  # keep block ordered by value
                 self.map[a] = (i, b)
                 inserted = True
                 break
@@ -168,6 +168,38 @@ class BlockDS:
             self.map[a] = (idx, b)
         for i, (a, b) in enumerate(right):
             self.map[a] = (idx + 1, b)
+    
+    def batchPrepend(self, L: list[tuple], M: int):
+        """
+        Prepend list L of (key, value) tuples in batches of size M.
+        """
+        if len(L) <= M:
+            self.blocks.insert(0, L)
+            for a, b in L:
+                self.map[a] = (0, b)
+            return
+        
+        for i in range(0, len(L), M):
+            batch = L[i:i + M]
+            self.blocks.insert(0, batch)
+            for a, b in batch:
+                self.map[a] = (0, b)
+
+    def pull(self):
+        """
+        Pull the minimum element (key, value) from the structure.
+        """
+        if not self.blocks or not self.blocks[0]:
+            return None
+        a, b = self.blocks[0].pop(0) # first one is min as blocks are sorted
+        del self.map[a]
+        if not self.blocks[0] and len(self.blocks) > 1:
+            self.blocks.pop(0)
+            # Update map for remaining blocks
+            for i, block in enumerate(self.blocks):
+                for a, b in block:
+                    self.map[a] = (i, b)
+        return (a, b)
 
     def __repr__(self):
         return f"Blocks={self.blocks}, Map={self.map}"
