@@ -196,24 +196,35 @@ class BlockDS:
         else:
             self.D0.insert(0, L)
 
-    def pull(self):
+    def pull(self, M : int) -> list[tuple]:
         """
-        Pull the minimum element (key, value) from the structure.
+        Pull M the minimum element (key, value) from blocks U D0
         """
-        if not self.blocks or not self.blocks[0]:
-            return None
-        a, b = self.blocks[0].pop(0) # first one is min as blocks are sorted
-        del self.map[a]
-        if not self.blocks[0] and len(self.blocks) > 1:
-            self.blocks.pop(0)
-            # Update map for remaining blocks
-            for i, block in enumerate(self.blocks):
-                for a, b in block:
-                    self.map[a] = (i, b)
-        return (a, b)
+        # get one block from D0 and one block from D1
+        sp0 = self.D0[0] if len(self.D0) > 1 else []
+        sp1 = self.blocks[0] if len(self.blocks) > 0 else []
+        # Merge sp0 and sp1 into a single sorted list s
+        i, j = 0, 0
+        s = []
+        while len(s) < M and i < len(sp0) and j < len(sp1):
+            if sp0[i][1] <= sp1[j][1]:
+                s.append(sp0[i])
+                i += 1
+            else:
+                s.append(sp1[j])
+                j += 1
+        # If we still need more elements, take from the remainder of sp0 or sp1
+        while len(s) < M and i < len(sp0):
+            s.append(sp0[i])
+            i += 1
+        while len(s) < M and j < len(sp1):
+            s.append(sp1[j])
+            j += 1
+        return s
+        
 
     def __repr__(self):
-        return f"Blocks={self.blocks}, Map={self.map}"
+        return f"Blocks={self.blocks}, Map={self.map}, D0={self.D0}"
         
 def find_pivots(bound_B, complete_vertices, graph_edges, k_steps):
     """
