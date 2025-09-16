@@ -98,6 +98,7 @@ class BlockDS:
         
         self.M = M
         self.B = B
+        self.D0 = []  # list of blocks for D0
         self.blocks = [[]]
         self.map = {}
         
@@ -168,22 +169,32 @@ class BlockDS:
             self.map[a] = (idx, b)
         for i, (a, b) in enumerate(right):
             self.map[a] = (idx + 1, b)
+
+    def splitMedian(self, L: list[tuple]):
+        """
+        Split list L of (key, value) tuples into two lists around the median value.
+        Returns two lists: left (<= median) and right (> median).
+        """
+        if not L:
+            return [], []
+        L.sort(key=lambda x: x[1])  # sort by value
+        mid = len(L) // 2 # median index
+        
+        left =  L[:mid+1] # first half including median
+        right = L[mid+1:] # second half excluding median
+        
+        return left, right
     
     def batchPrepend(self, L: list[tuple], M: int):
         """
-        Prepend list L of (key, value) tuples in batches of size M.
+        Prepend list L of (key, value) tuples in batches of size M into D0.
         """
-        if len(L) <= M:
-            self.blocks.insert(0, L)
-            for a, b in L:
-                self.map[a] = (0, b)
-            return
-        
-        for i in range(0, len(L), M):
-            batch = L[i:i + M]
-            self.blocks.insert(0, batch)
-            for a, b in batch:
-                self.map[a] = (0, b)
+        if len(L) > M:
+            left, right = self.splitMedian(L)
+            self.batchPrepend(right, M)
+            self.batchPrepend(left, M)
+        else:
+            self.D0.insert(0, L)
 
     def pull(self):
         """
