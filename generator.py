@@ -177,7 +177,7 @@ class BlockDS:
         """
         if not L:
             return [], []
-        L.sort(key=lambda x: x[1])  # sort by value
+        # L.sort(key=lambda x: x[1])  # sort by value
         mid = len(L) // 2 # median index
         
         left =  L[:mid+1] # first half including median
@@ -225,8 +225,55 @@ class BlockDS:
 
     def __repr__(self):
         return f"Blocks={self.blocks}, Map={self.map}, D0={self.D0}"
-        
-def find_pivots(bound_B, complete_vertices, graph_edges, k_steps):
+
+
+def find_pivots(B, S, adj, d, block_ds: BlockDS):
+    """
+    Algorithm 2: FindPivots(B, S) tied to BlockDS.
+    
+    B : distance threshold
+    S : set of complete vertices
+    adj : adjacency list {u: [(v, w), ...]}
+    d : dict of current shortest distances {v: dist}
+    block_ds : BlockDS instance
+    
+    Returns:
+        P : set of pivot vertices
+        W : set of visited vertices
+    """
+    P = set()
+    W = set()
+
+    # Initialize with S
+    for u in S:
+        P.add(u)
+        W.add(u)
+        block_ds.insert(u, d[u])
+
+    # Expand until no more nodes within bound B
+    while True:
+        # Pull one minimum element
+        pulled = block_ds.pull(1)
+        if not pulled:
+            break
+        u, du = pulled[0]
+
+        # If above bound, stop
+        if du >= B:
+            break
+
+        # For each edge (u, v) with weight w
+        for v, w in adj[u]:
+            if du + w < d.get(v, float("inf")) and du + w < B:
+                d[v] = du + w
+                block_ds.insert(v, d[v])
+                P.add(v)
+                W.add(v)
+
+    return P, W
+
+
+def find_pivots_old(bound_B, complete_vertices, graph_edges, k_steps):
     """
     Implementation of Algorithm 1: Finding Pivots.
     
@@ -332,20 +379,42 @@ if __name__ == "__main__":
 
     # draw_graph_interactive(g, path=path, directed=False, output_file="graph.html")
 # Initialize with block size M=3 and bound B=100
-    ds = BlockDS(3, 100)
+    # ds = BlockDS(3, 100)
 
-    # Insert elements
-    ds.insert("x", 10)
-    ds.insert("y", 5)
-    ds.insert("z", 20)
-    ds.insert("w", 15)  # causes block split
+    # # Insert elements
+    # ds.insert("x", 10)
+    # ds.insert("y", 5)
+    # ds.insert("z", 20)
+    # ds.insert("w", 15)  # causes block split
 
-    print("After insertions:", ds)
+    # print("After insertions:", ds)
 
-    # Update existing key with smaller value
-    ds.insert("z", 8)
-    print("After updating z:", ds)
+    # # Update existing key with smaller value
+    # ds.insert("z", 8)
+    # print("After updating z:", ds)
 
-    # Delete element
-    ds.delete("y", 5)
-    print("After deleting y:", ds)
+    # # Delete element
+    # ds.delete("y", 5)
+    # print("After deleting y:", ds)
+# Example graph
+    # adj = {
+    #     "s": [("a", 2), ("b", 5)],
+    #     "a": [("c", 2)],
+    #     "b": [("c", 1)],
+    #     "c": []
+    # }
+
+    # # Distances initialized
+    # d = {"s": 0, "a": float("inf"), "b": float("inf"), "c": float("inf")}
+
+    # # Create BlockDS
+    # block_ds = BlockDS(M=3, B=2)
+
+    # print("mandeha")
+    # # Call Algorithm 2
+    # P, W = find_pivots(B=10, S={"s"}, adj=adj, d=d, block_ds=block_ds)
+
+    # print("Pivots:", P)
+    # print("W:", W)
+    # print("Distances:", d)
+    # print("BlockDS state:", block_ds)
