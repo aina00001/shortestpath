@@ -201,24 +201,35 @@ class BlockDS:
         Pull M the minimum element (key, value) from blocks U D0
         """
         # get one block from D0 and one block from D1
-        sp0 = self.D0[0] if len(self.D0) > 1 else []
-        sp1 = self.blocks[0] if len(self.blocks) > 0 else []
+        sp0 = self.D0[0].copy() if len(self.D0) > 1 else []
+        sp1 = self.blocks[0].copy() if len(self.blocks) > 0 else []
         # Merge sp0 and sp1 into a single sorted list s
         i, j = 0, 0
         s = []
         while len(s) < M and i < len(sp0) and j < len(sp1):
+            print("i, j", i, j)
             if sp0[i][1] <= sp1[j][1]:
                 s.append(sp0[i])
-                i += 1
+                # remove from D0
+                self.D0[0].pop(0)
+                if self.D0[0] == []:
+                    self.D0.pop(0) # remove empty block
+                i += 1 
             else:
                 s.append(sp1[j])
+                self.delete(sp1[j][0], sp1[j][1])
                 j += 1
         # If we still need more elements, take from the remainder of sp0 or sp1
         while len(s) < M and i < len(sp0):
             s.append(sp0[i])
+            # remove from D0
+            self.D0[0].pop(0)
+            if self.D0[0] == []:
+                self.D0.pop(0) # remove empty block
             i += 1
         while len(s) < M and j < len(sp1):
             s.append(sp1[j])
+            self.delete(sp1[j][0], sp1[j][1])
             j += 1
         return s
         
@@ -379,23 +390,32 @@ if __name__ == "__main__":
 
     # draw_graph_interactive(g, path=path, directed=False, output_file="graph.html")
 # Initialize with block size M=3 and bound B=100
-    # ds = BlockDS(3, 100)
+    ds = BlockDS(3, 100)
 
-    # # Insert elements
-    # ds.insert("x", 10)
-    # ds.insert("y", 5)
-    # ds.insert("z", 20)
-    # ds.insert("w", 15)  # causes block split
+    # Insert elements
+    ds.insert("x", 10)
+    ds.insert("y", 5)
+    ds.insert("z", 20)
+    ds.insert("w", 15)  # causes block split
 
-    # print("After insertions:", ds)
+    print("After insertions:", ds)
 
-    # # Update existing key with smaller value
-    # ds.insert("z", 8)
-    # print("After updating z:", ds)
+    ds.batchPrepend([("a", 1), ("c", 2), ("b", 3), ("d", 4)], M=3)
 
-    # # Delete element
-    # ds.delete("y", 5)
-    # print("After deleting y:", ds)
+    print("After batchPrepend:", ds)
+
+    # Update existing key with smaller value
+    ds.insert("z", 8)
+    print("After updating z:", ds)
+
+    # Delete element
+    ds.delete("y", 5)
+    print("After deleting y:", ds)
+
+    res = ds.pull(4)
+    print("Pulled elements:", res)
+    print("After pulling 4 elements:", ds)
+
 # Example graph
     # adj = {
     #     "s": [("a", 2), ("b", 5)],
