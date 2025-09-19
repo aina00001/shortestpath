@@ -390,51 +390,51 @@ if __name__ == "__main__":
 
     # draw_graph_interactive(g, path=path, directed=False, output_file="graph.html")
 # Initialize with block size M=3 and bound B=100
-    ds = BlockDS(3, 100)
+    # ds = BlockDS(3, 100)
 
-    # Insert elements
-    ds.insert("x", 10)
-    ds.insert("y", 5)
-    ds.insert("z", 20)
-    ds.insert("w", 15)  # causes block split
+    # # Insert elements
+    # ds.insert("x", 10)
+    # ds.insert("y", 5)
+    # ds.insert("z", 20)
+    # ds.insert("w", 15)  # causes block split
 
-    print("After insertions:", ds)
+    # print("After insertions:", ds)
 
-    ds.batchPrepend([("a", 1), ("c", 2), ("b", 3), ("d", 4)], M=3)
+    # ds.batchPrepend([("a", 1), ("c", 2), ("b", 3), ("d", 4)], M=3)
 
-    print("After batchPrepend:", ds)
+    # print("After batchPrepend:", ds)
 
-    # Update existing key with smaller value
-    ds.insert("z", 8)
-    print("After updating z:", ds)
+    # # Update existing key with smaller value
+    # ds.insert("z", 8)
+    # print("After updating z:", ds)
 
-    # Delete element
-    ds.delete("y", 5)
-    print("After deleting y:", ds)
+    # # Delete element
+    # ds.delete("y", 5)
+    # print("After deleting y:", ds)
 
-    res = ds.pull(4)
-    print("Pulled elements:", res)
-    print("After pulling 4 elements:", ds)
+    # res = ds.pull(4)
+    # print("Pulled elements:", res)
+    # print("After pulling 4 elements:", ds)
 
 # Example graph
-    # adj = {
-    #     "s": [("a", 2), ("b", 5)],
-    #     "a": [("c", 2)],
-    #     "b": [("c", 1)],
-    #     "c": []
-    # }
+    adj = {
+        "s": [("a", 2), ("b", 5)],
+        "a": [("c", 2)],
+        "b": [("c", 1)],
+        "c": []
+    }
 
-    # # Distances initialized
-    # d = {"s": 0, "a": float("inf"), "b": float("inf"), "c": float("inf")}
+    # Distances initialized
+    d = {"s": 0, "a": float("inf"), "b": float("inf"), "c": float("inf")}
 
-    # # Create BlockDS
-    # block_ds = BlockDS(M=3, B=2)
+    # Create BlockDS
+    block_ds = BlockDS(M=3, B=2)
 
-    # print("mandeha")
-    # # Call Algorithm 2
-    # P, W = find_pivots(B=10, S={"s"}, adj=adj, d=d, block_ds=block_ds)
+    print("mandeha")
+    # Call Algorithm 2
+    P, W = find_pivots(B=10, S={"s"}, adj=adj, d=d, block_ds=block_ds)
 
-    # print("Pivots:", P)
-    # print("W:", W)
-    # print("Distances:", d)
-    # print("BlockDS state:", block_ds)
+    print("Pivots:", P)
+    print("W:", W)
+    print("Distances:", d)
+    print("BlockDS state:", block_ds)
