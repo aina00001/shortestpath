@@ -2,6 +2,8 @@ import heapq
 import math
 from collections import defaultdict
 from typing import Dict, Iterable, List, Set, Tuple, Optional
+from generator import generate_graph, dijkstra, draw_graph_interactive
+import time
 
 # -------------------------
 # SimpleBlockDS (heap-backed)
@@ -206,6 +208,7 @@ def bmssp(l: int,
     Algorithm 3 BMSSP(l, B, S)
     Returns (B_prime, U) and mutates d_hat in-place.
     """
+    # print("BMSSP called with l =", l, "B =", B, "S =", S)
     # Base case
     if l == 0:
         return base_case(B, S, adj, d_hat, k)
@@ -319,17 +322,47 @@ def sssp_via_bmssp(adj: Dict[str, List[Tuple[str, float]]],
 # -------------------------
 if __name__ == "__main__":
     # small sample graph
-    adj_example = {
-        "s": [("a", 2.0), ("b", 5.0)],
-        "a": [("c", 2.0)],
-        "b": [("c", 1.0)],
-        "c": [("d", 3.0)],
-        "d": []
-    }
+    # adj_example = {
+    #     "s": [("a", 2.0), ("b", 5.0)],
+    #     "a": [("c", 2.0)],
+    #     "b": [("c", 1.0)],
+    #     "c": [("d", 3.0)],
+    #     "d": []
+    # }
+    
+    num = 200
 
+    num_nodes = num
+    num_edges = num*100
+    g = generate_graph(num_nodes=num_nodes, num_edges=num_edges, directed=True)
+    print("Graph adjacency list:")
+    for node, edges in g.items():
+        print(f"{node}: {edges}")
+
+    source = 0
+    target = num-1
+    
+    start_bmssp = time.time()
+
+    print("dijkstra----------------------------------------------------------------")
+    start_dijkstra = time.time()
+    dist, dist_target, path = dijkstra(g, source, target)
+    end_dijkstra = time.time() - start_dijkstra
+    print(f"dijkstra time: {end_dijkstra}")
+    print(dist)
+    print(f"\nShortest path from {source} to {target}: {path} with distance {dist_target}")
+    
+    
+    print("bmssp-------------------------------------------------------------------")
     print("Running SSSP via BMSSP on a small graph...")
-    distances = sssp_via_bmssp(adj_example, "s")
+    distances = sssp_via_bmssp(g, source)
     print("Distances:", distances)
+    
+    end_bmssp = time.time() - start_bmssp
+    print(f"bmssp time: {end_bmssp}")
+
+
+    draw_graph_interactive(g, path=path, directed=False, output_file="graph_new.html")
 
 
     # num_edges = 100

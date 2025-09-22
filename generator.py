@@ -58,7 +58,7 @@ def dijkstra(graph, start, target):
         u = prev[u]
     path.reverse()
 
-    return dist[target], path
+    return dist, dist[target], path
 
 
 def draw_graph_interactive(graph, path=None, directed=False, output_file="graph.html"):
